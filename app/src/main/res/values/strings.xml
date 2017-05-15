@@ -1,0 +1,38 @@
+<resources>
+    <string name="app_name">Current Place Details</string>
+    <string name="title_activity_maps">Current Place Details</string>
+    <string name="default_info_title">Default Location</string>
+    <string name="default_info_snippet">No places found, because location permission is disabled.</string>
+    <string name="option_get_place">Get place</string>
+    <string name="pick_place">Choose a place</string>
+    <!-- All -->
+    <string name="loading">Loading&#8230;</string>
+    <string name="upload">File upload&#8230; Please wait&#8230;</string>
+    <string name="configure">Configure</string>
+    <string name="cancel">Cancel</string>
+    <string name="prompt">Prompt</string>
+    <string name="delete">Delete</string>
+    <string name="update">Update</string>
+    <string name="back">Back</string>
+
+    <!-- MainActivity -->
+    <string name="about">Jagwir and Tech</string>
+    <string name="product">Product</string>
+    <string name="catalog">Catalog</string>
+    <string name="assembly">Location</string>
+
+    <!-- AboutCatgActivity -->
+    <string name="toast_download_aboutcatg_fail">載入關於資料失敗</string>
+
+    <!-- ProdCatgActivity -->
+    <string name="toast_download_prodcatg_fail">載入產品資料失敗</string>
+
+    <!-- ThumbnailActivity -->
+    <string name="download">Download</string>
+    <string name="review">Review</string>
+    <string name="toast_download_album_first">Please download catalog first.</string>
+    <string name="toast_download_album_fail">Catalog download failed.</string>
+    <string name="toast_update_album_fail">Catalog update failed.</string>
+    <string name="alert_delete_album">Do you want to delete this catalog?</string>
+
+</resources>
