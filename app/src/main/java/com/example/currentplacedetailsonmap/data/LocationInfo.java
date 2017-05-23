@@ -9,7 +9,7 @@ public class LocationInfo {
 	private String tel;
 	private String name;
 	private String atype;
-	private Integer photo;
+	private String photo_URL;
 
 	public String getTel() {
 		return tel;
@@ -18,7 +18,7 @@ public class LocationInfo {
 		this.tel = tel;
 	}
 	public LocationInfo(String lat, String lng, String vicinity, String tel,
-			String name, String atype, Integer photo) {
+			String name, String atype, String photo_URL) {
 		super();
 		this.lat = lat;
 		this.lng = lng;
@@ -26,7 +26,7 @@ public class LocationInfo {
 		this.tel = tel;
 		this.name = name;
 		this.atype = atype;
-		this.photo = photo;
+		this.photo_URL = photo_URL;
 	}
 	public String getName() {
 		return name;
@@ -58,10 +58,10 @@ public class LocationInfo {
 	public void setAtype(String atype) {
 		this.atype = atype;
 	}
-	public Integer getPhoto() {
-		return photo;
+	public String getPhoto() {
+		return photo_URL;
 	}
 	public void setPhoto(Integer photo) {
-		this.photo = photo;
+		this.photo_URL = photo_URL;
 	}
 }

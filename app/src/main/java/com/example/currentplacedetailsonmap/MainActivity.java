@@ -2,41 +2,33 @@ package com.example.currentplacedetailsonmap;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.currentplacedetailsonmap.data.LocationInfo;
-import com.example.currentplacedetailsonmap.data.MarkerHelper;
 import com.example.currentplacedetailsonmap.util.ConfigUtil;
-import com.example.currentplacedetailsonmap.util.GsonUtil;
 import com.example.currentplacedetailsonmap.util.PlaceJSONParser;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
-import com.google.android.gms.drive.Drive;
-import com.google.android.gms.drive.DriveApi;
-import com.google.android.gms.drive.query.Filters;
-import com.google.android.gms.drive.query.Query;
-import com.google.android.gms.drive.query.SearchableField;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.Places;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONObject;
 
@@ -52,16 +44,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class MainActivity2 extends AppCompatActivity  implements
+public class MainActivity extends AppCompatActivity  implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener
 {
 
-    private static final String TAG = MainActivity2.class.getSimpleName();
+    private static final String TAG = MainActivity.class.getSimpleName();
     private TextView store_name;
     private TextView store_address;
     private TextView store_tel;
+    private ImageView store_photo;
 
     private final int radius = 500;
     // The geographical location where the device is currently located. That is, the last-known
@@ -81,9 +74,10 @@ public class MainActivity2 extends AppCompatActivity  implements
     public static final int LOCATION_UPDATE_MIN_TIME = 5000;
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
 
-     private LocationManager mLocationManager;
+    private LocationManager mLocationManager;
     private Location mCurrentLocation;
     LocationRequest mLocationRequest;
+    private Button btn_OK,btn_next;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,10 +86,29 @@ public class MainActivity2 extends AppCompatActivity  implements
         if (savedInstanceState != null) {
             mLastKnownLocation = savedInstanceState.getParcelable(KEY_LOCATION);
         }
-        setContentView(R.layout.activity_main2);
+        setContentView(R.layout.activity_main);
+
+        btn_OK = (Button) findViewById(R.id.button_OK);
+        btn_OK.setOnClickListener(new Button.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+
+        btn_next = (Button) findViewById(R.id.button_next);
+        btn_next.setOnClickListener(new Button.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                getCurrentLocation();
+                searchKeyword("restaurant");
+            }
+        });
+
         store_name = (TextView)findViewById(R.id.store_name);
         store_address = (TextView)findViewById(R.id.store_address);
         store_tel = (TextView)findViewById(R.id.store_phone_number);
+        store_photo = (ImageView)findViewById(R.id.store_photo);
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .enableAutoManage(this /* FragmentActivity */,
                         this /* OnConnectionFailedListener */)
@@ -244,10 +257,10 @@ public class MainActivity2 extends AppCompatActivity  implements
      */
     private class PlacesTask extends AsyncTask<String, Integer, String> {
 
-        private MainActivity2 context = null;
+        private MainActivity context = null;
         String data = null;
 
-        public PlacesTask(MainActivity2 context) {
+        public PlacesTask(MainActivity context) {
             this.context = context;
         }
 
@@ -273,10 +286,54 @@ public class MainActivity2 extends AppCompatActivity  implements
         protected void onPostExecute(String result) {
             //context.dialog.dismiss();
             //context.dismissDialog(2);
-            MainActivity2.ParserTask parserTask = new MainActivity2.ParserTask();
+            MainActivity.ParserTask parserTask = new MainActivity.ParserTask();
             parserTask.execute(result);
         }
     }
+
+    /**
+     * A class, to download Places Photo
+     */
+    private class PhotoTask extends AsyncTask<String, Integer, Bitmap> {
+
+        private MainActivity context = null;
+
+        public PhotoTask(MainActivity context) {
+            this.context = context;
+        }
+
+        @Override
+        protected Bitmap doInBackground(String... params) {
+            try {
+                Bitmap bitmap = null;
+                URL url = new URL(params[0]);
+                //bitmap = downloadPhotoUrl(url[0]);
+                bitmap = BitmapFactory.decodeStream(url.openConnection().getInputStream());
+                return bitmap;
+            } catch (Exception e) {
+                Log.d(TAG, e.toString());
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            //context.dialog = ProgressDialog.show(context, "",
+            //       context.getString(R.string.loading), true);
+            //context.openPlacesDialog();
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap result) {
+            //context.dialog.dismiss();
+            //context.dismissDialog(2);
+            //MainActivity.ParserTask parserTask = new MainActivity.ParserTask();
+            //parserTask.execute(result);
+            store_photo.setImageBitmap(result);
+        }
+    }
+
 
 
     /** A class to parse the Google Places in JSON format */
@@ -321,22 +378,33 @@ public class MainActivity2 extends AppCompatActivity  implements
                 String name = hmPlace.get("place_name");
                 //markerOptions.title(name);
                 String vicinity = hmPlace.get("vicinity");
+
+                String photo = hmPlace.get("photo");
                 //MarkerHelper markerHelper = new MarkerHelper(name, vicinity);
                 //MarkerHelper markerHelper = new MarkerHelper(new Lo)
                 //String snippet = GsonUtil.gson.toJson(markerHelper);
                 //arkerOptions.snippet(snippet);
                 //textname = name;
                 //Log.v(TAG,"name = " + name);
-                locationInfoList.add(new LocationInfo(String.valueOf(lat),String.valueOf(lng),vicinity,"",name,"restaurant",1));
+                locationInfoList.add(new LocationInfo(String.valueOf(lat),String.valueOf(lng),vicinity,"",name,"restaurant",photo));
                 Log.v(TAG,"textname = " + name);
+                Log.v(TAG,"photo = " + photo);
             }
 
-            store_name.setText(locationInfoList.get((int)(Math.random()*list.size())).getName());
-            store_address.setText(locationInfoList.get((int)(Math.random()*list.size())).getVicinity());
-            store_tel.setText(locationInfoList.get((int)(Math.random()*list.size())).getTel());
+            int selected_index = (int)(Math.random()*list.size());
+            store_name.setText(locationInfoList.get(selected_index).getName());
+            store_address.setText(locationInfoList.get(selected_index).getVicinity());
+            store_tel.setText(locationInfoList.get(selected_index).getTel());
+            getBMPFromURL(locationInfoList.get(selected_index).getPhoto());
             //LatLng latLng = new LatLng(mLatitude, mLongitude);
             //addMyLocationIcon(latLng);
         }
+    }
+
+    private void getBMPFromURL(String URL) {
+        MainActivity.PhotoTask photoTask = new MainActivity.PhotoTask(MainActivity.this);
+        Log.v(TAG, URL);
+        photoTask.execute(URL);
     }
     /**
      * 用關鍵字搜尋地標
@@ -353,7 +421,7 @@ public class MainActivity2 extends AppCompatActivity  implements
             sb.append("&types=" + keyword);
             sb.append("&sensor=true");
             sb.append("&key=" + ConfigUtil.API_KEY_GOOGLE_MAP);  //server key
-            MainActivity2.PlacesTask placesTask = new MainActivity2.PlacesTask(MainActivity2.this);
+            MainActivity.PlacesTask placesTask = new MainActivity.PlacesTask(MainActivity.this);
             Log.v(TAG, sb.toString());
             placesTask.execute(sb.toString());
         } catch (UnsupportedEncodingException e) {
@@ -388,6 +456,26 @@ public class MainActivity2 extends AppCompatActivity  implements
             urlConnection.disconnect();
         }
         return data;
+    }
+
+    /** A method to download json data from url */
+    private static Bitmap downloadPhotoUrl(String strUrl) throws IOException {
+        InputStream iStream = null;
+        HttpURLConnection urlConnection = null;
+        Bitmap myBitmap = null;
+        try {
+            URL url = new URL(strUrl);
+            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.connect();
+            iStream = urlConnection.getInputStream();
+            BitmapFactory.decodeStream(iStream);
+        } catch (Exception e) {
+            Log.d(TAG, e.toString());
+        } finally {
+            iStream.close();
+            urlConnection.disconnect();
+        }
+        return myBitmap;
     }
 
     protected void onStart() {

@@ -55,7 +55,8 @@ public class PlaceJSONParser {
 		String vicinity="-NA-";
 		String latitude="";
 		String longitude="";
-				
+		String photo_reference = "-NA-";
+		StringBuilder sb = new StringBuilder("https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=");
 		
 		try {
 			// Extracting Place name, if available
@@ -66,8 +67,23 @@ public class PlaceJSONParser {
 			// Extracting Place Vicinity, if available
 			if(!jPlace.isNull("vicinity")){
 				vicinity = jPlace.getString("vicinity");
-			}	
-			
+			}
+
+			// Extracting Place Photo, if available
+			if(!jPlace.isNull("photos")){
+
+				JSONArray photos = jPlace.getJSONArray("photos");
+
+				//Run for loop for getting photo_reference string in each object
+
+				for (int i=0; i < 1; i++){
+					JSONObject getPhtotos = photos.getJSONObject(i);
+					photo_reference = getPhtotos.getString("photo_reference");
+					sb.append(photo_reference);
+					sb.append("&key=" + ConfigUtil.API_KEY_GOOGLE_MAP);
+				}
+			}
+
 			latitude = jPlace.getJSONObject("geometry").getJSONObject("location").getString("lat");
 			longitude = jPlace.getJSONObject("geometry").getJSONObject("location").getString("lng");			
 			
@@ -76,8 +92,8 @@ public class PlaceJSONParser {
 			place.put("vicinity", vicinity);
 			place.put("lat", latitude);
 			place.put("lng", longitude);
-			
-			
+			//a string builder here to create the url
+			place.put("photo", sb.toString());
 		} catch (JSONException e) {			
 			e.printStackTrace();
 		}		

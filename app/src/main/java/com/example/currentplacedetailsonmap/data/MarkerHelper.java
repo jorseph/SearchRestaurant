@@ -7,7 +7,7 @@ public class MarkerHelper {
 	private String title;
 	private String addr;
 	private String tel;
-	private Integer pic;
+	private String pic;
 	
 	public MarkerHelper(String title, String addr) {
 		super();
@@ -47,11 +47,11 @@ public class MarkerHelper {
 		this.tel = tel;
 	}
 
-	public Integer getPic() {
+	public String getPic() {
 		return pic;
 	}
 
-	public void setPic(Integer pic) {
+	public void setPic(String  pic) {
 		this.pic = pic;
 	}
 
