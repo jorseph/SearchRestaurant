@@ -56,7 +56,7 @@ public class PlaceJSONParser {
 		String latitude="";
 		String longitude="";
 		String photo_reference = "-NA-";
-		StringBuilder sb = new StringBuilder("https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=");
+		StringBuilder sb = new StringBuilder(ConfigUtil.GOOGLE_PHOTO_API);
 		
 		try {
 			// Extracting Place name, if available

@@ -1,12 +1,14 @@
 package com.example.currentplacedetailsonmap;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -57,6 +59,7 @@ public class MainActivity extends AppCompatActivity  implements
     private ImageView store_photo;
 
     private final int radius = 500;
+    private final String language = "zh-TW";
     // The geographical location where the device is currently located. That is, the last-known
     // location retrieved by the Fused Location Provider.
     private Location mLastKnownLocation;
@@ -78,6 +81,7 @@ public class MainActivity extends AppCompatActivity  implements
     private Location mCurrentLocation;
     LocationRequest mLocationRequest;
     private Button btn_OK,btn_next;
+    private List<LocationInfo> locationInfoList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,8 +104,7 @@ public class MainActivity extends AppCompatActivity  implements
         btn_next.setOnClickListener(new Button.OnClickListener(){
             @Override
             public void onClick(View v) {
-                getCurrentLocation();
-                searchKeyword("restaurant");
+                handleIntent();
             }
         });
 
@@ -219,8 +222,8 @@ public class MainActivity extends AppCompatActivity  implements
         }
         if (location != null) {
             Log.d(TAG, "" + location.getLatitude() + " " + location.getLongitude());
-            mLatitude = location.getLatitude();
-            mLongitude = location.getLongitude();
+            //mLatitude = location.getLatitude();
+            //mLongitude = location.getLongitude();
         }
     }
 
@@ -366,7 +369,7 @@ public class MainActivity extends AppCompatActivity  implements
             // Clears all the existing markers
             //mMap.clear();
             //mapInfoAdapter.setKeyword(true);
-            List<LocationInfo> locationInfoList = new ArrayList<LocationInfo>();
+            locationInfoList = new ArrayList<LocationInfo>();
             String textname = "";
             for (int i = 0; i < list.size(); i++) {
                 //MarkerOptions markerOptions = new MarkerOptions();
@@ -378,6 +381,7 @@ public class MainActivity extends AppCompatActivity  implements
                 String name = hmPlace.get("place_name");
                 //markerOptions.title(name);
                 String vicinity = hmPlace.get("vicinity");
+                //String tel = hmPlace.get("");
 
                 String photo = hmPlace.get("photo");
                 //MarkerHelper markerHelper = new MarkerHelper(name, vicinity);
@@ -386,16 +390,12 @@ public class MainActivity extends AppCompatActivity  implements
                 //arkerOptions.snippet(snippet);
                 //textname = name;
                 //Log.v(TAG,"name = " + name);
-                locationInfoList.add(new LocationInfo(String.valueOf(lat),String.valueOf(lng),vicinity,"",name,"restaurant",photo));
+                locationInfoList.add(new LocationInfo(String.valueOf(lat),String.valueOf(lng),vicinity,"",name,"restaurant",photo,100));
                 Log.v(TAG,"textname = " + name);
                 Log.v(TAG,"photo = " + photo);
+                //Log.v(TAG,"tel = " + )
             }
-
-            int selected_index = (int)(Math.random()*list.size());
-            store_name.setText(locationInfoList.get(selected_index).getName());
-            store_address.setText(locationInfoList.get(selected_index).getVicinity());
-            store_tel.setText(locationInfoList.get(selected_index).getTel());
-            getBMPFromURL(locationInfoList.get(selected_index).getPhoto());
+            handleIntent();
             //LatLng latLng = new LatLng(mLatitude, mLongitude);
             //addMyLocationIcon(latLng);
         }
@@ -417,7 +417,7 @@ public class MainActivity extends AppCompatActivity  implements
             StringBuilder sb = new StringBuilder(ConfigUtil.GOOGLE_SEARCH_API);
             sb.append("location=" + mLatitude + "," + mLongitude);
             sb.append("&radius=" + radius);
-            //sb.append("&keyword=" + unitStr);
+            sb.append("&language =" + language);
             sb.append("&types=" + keyword);
             sb.append("&sensor=true");
             sb.append("&key=" + ConfigUtil.API_KEY_GOOGLE_MAP);  //server key
@@ -458,24 +458,20 @@ public class MainActivity extends AppCompatActivity  implements
         return data;
     }
 
-    /** A method to download json data from url */
-    private static Bitmap downloadPhotoUrl(String strUrl) throws IOException {
-        InputStream iStream = null;
-        HttpURLConnection urlConnection = null;
-        Bitmap myBitmap = null;
-        try {
-            URL url = new URL(strUrl);
-            urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.connect();
-            iStream = urlConnection.getInputStream();
-            BitmapFactory.decodeStream(iStream);
-        } catch (Exception e) {
-            Log.d(TAG, e.toString());
-        } finally {
-            iStream.close();
-            urlConnection.disconnect();
-        }
-        return myBitmap;
+    private void handleIntent() {
+        final int selected_index = (int)(Math.random()*locationInfoList.size());
+        store_name.setText(locationInfoList.get(selected_index).getName());
+        store_address.setText(locationInfoList.get(selected_index).getVicinity());
+        store_tel.setText(locationInfoList.get(selected_index).getTel());
+        getBMPFromURL(locationInfoList.get(selected_index).getPhoto());
+        store_name.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String startmaps = "geo:" + locationInfoList.get(selected_index).getLat() + "," + locationInfoList.get(selected_index).getLng() + "?q=" + locationInfoList.get(selected_index).getName();
+                Intent intent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(startmaps));
+                startActivity(intent);
+            }
+        });
     }
 
     protected void onStart() {

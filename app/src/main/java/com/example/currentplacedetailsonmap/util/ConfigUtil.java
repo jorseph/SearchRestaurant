@@ -22,10 +22,12 @@ package com.example.currentplacedetailsonmap.util;
  */
 public final class ConfigUtil {
 	
-	public static final String TAG = "ruby";
+	public static final String TAG = "ConfigUtil";
 	
 	//google map
 	public static final String API_KEY_GOOGLE_MAP = "AIzaSyC4x9UIJyMUnYJbFZJBbmFuvEnF06iDLJc";  //server key
 	public static final String GOOGLE_SEARCH_API = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?";
+	public static final String GOOGLE_DETAIL_API = "https://maps.googleapis.com/maps/api/place/details/json";
+	public static final String GOOGLE_PHOTO_API = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=";
 	
 }

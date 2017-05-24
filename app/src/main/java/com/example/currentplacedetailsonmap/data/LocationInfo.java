@@ -10,6 +10,7 @@ public class LocationInfo {
 	private String name;
 	private String atype;
 	private String photo_URL;
+    private int score;
 
 	public String getTel() {
 		return tel;
@@ -18,7 +19,7 @@ public class LocationInfo {
 		this.tel = tel;
 	}
 	public LocationInfo(String lat, String lng, String vicinity, String tel,
-			String name, String atype, String photo_URL) {
+			String name, String atype, String photo_URL, int score) {
 		super();
 		this.lat = lat;
 		this.lng = lng;
@@ -27,6 +28,7 @@ public class LocationInfo {
 		this.name = name;
 		this.atype = atype;
 		this.photo_URL = photo_URL;
+        this.score = score;
 	}
 	public String getName() {
 		return name;
@@ -64,4 +66,6 @@ public class LocationInfo {
 	public void setPhoto(Integer photo) {
 		this.photo_URL = photo_URL;
 	}
+	public int getScore() {return score;}
+    public void setScore(int score) {this.score = score;}
 }
