@@ -1,8 +1,11 @@
 package com.example.currentplacedetailsonmap;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.database.SQLException;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
@@ -78,10 +81,13 @@ public class MainActivity extends AppCompatActivity  implements
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
 
     private LocationManager mLocationManager;
+    private Context mcontext;
     private Location mCurrentLocation;
     LocationRequest mLocationRequest;
     private Button btn_OK,btn_next;
     private List<LocationInfo> locationInfoList;
+
+    private MyDBHelper helper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,12 +96,25 @@ public class MainActivity extends AppCompatActivity  implements
         if (savedInstanceState != null) {
             mLastKnownLocation = savedInstanceState.getParcelable(KEY_LOCATION);
         }
+        mcontext = getApplication().getApplicationContext();
         setContentView(R.layout.activity_main);
 
         btn_OK = (Button) findViewById(R.id.button_OK);
         btn_OK.setOnClickListener(new Button.OnClickListener(){
             @Override
             public void onClick(View v) {
+                //String DB_store_name = store_name.getText().toString();
+                //ContentValues values = new ContentValues();
+                //values.put("store",DB_store_name);
+                String cdate = "cdate";
+                String storeinfo = store_name.getText().toString();
+                int score = 2;
+                ContentValues values = new ContentValues();
+                values.put("cdate", cdate);
+                values.put("storeinfo", storeinfo);
+                values.put("score", score);
+                long id = helper.getWritableDatabase().insert("exp", null, values);
+                Log.d("ADD", id+"");
                 finish();
             }
         });
@@ -105,6 +124,14 @@ public class MainActivity extends AppCompatActivity  implements
             @Override
             public void onClick(View v) {
                 handleIntent();
+                Cursor c = helper.getReadableDatabase().query(
+                        "exp", null, null, null, null, null, null);
+                c.moveToFirst();
+                Log.v(TAG,"query =" + c.getString(0));
+                Log.v(TAG,"query =" + c.getString(1));
+                Log.v(TAG,"query =" + c.getString(2));
+                Log.v(TAG,"query =" + c.getString(3));
+                //helper.getWritableDatabase().delete("exp",null,null);
             }
         });
 
@@ -112,6 +139,9 @@ public class MainActivity extends AppCompatActivity  implements
         store_address = (TextView)findViewById(R.id.store_address);
         store_tel = (TextView)findViewById(R.id.store_phone_number);
         store_photo = (ImageView)findViewById(R.id.store_photo);
+
+        helper = new MyDBHelper(this, "expense.db", null, 1);
+
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .enableAutoManage(this /* FragmentActivity */,
                         this /* OnConnectionFailedListener */)
