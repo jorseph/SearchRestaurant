@@ -60,9 +60,11 @@ public class MainActivity extends AppCompatActivity  implements
     private TextView store_address;
     private TextView store_tel;
     private ImageView store_photo;
+    private JudgeStore mJudgeStore;
 
     private final int radius = 500;
     private final String language = "zh-TW";
+    private int show_index = 0;
     // The geographical location where the device is currently located. That is, the last-known
     // location retrieved by the Fused Location Provider.
     private Location mLastKnownLocation;
@@ -103,9 +105,7 @@ public class MainActivity extends AppCompatActivity  implements
         btn_OK.setOnClickListener(new Button.OnClickListener(){
             @Override
             public void onClick(View v) {
-                //String DB_store_name = store_name.getText().toString();
-                //ContentValues values = new ContentValues();
-                //values.put("store",DB_store_name);
+                //save data into DB
                 String cdate = "cdate";
                 String storeinfo = store_name.getText().toString();
                 int score = 2;
@@ -123,7 +123,25 @@ public class MainActivity extends AppCompatActivity  implements
         btn_next.setOnClickListener(new Button.OnClickListener(){
             @Override
             public void onClick(View v) {
-                handleIntent();
+                //show google map.
+                show_index++;
+                if((show_index + 1) > locationInfoList.size()) {
+                    store_name.setText("no store!");
+                }
+                if(JudgeShowSuggestStore()) {
+                    store_name.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            String startmaps = "geo:" + locationInfoList.get(show_index).getLat() + "," + locationInfoList.get(show_index).getLng() + "?q=" + locationInfoList.get(show_index).getName();
+                            Intent intent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(startmaps));
+                            startActivity(intent);
+                        }
+                    });
+                } else {
+                    store_name.setText("no store!");
+                }
+                //get data from DB.
+                /*
                 Cursor c = helper.getReadableDatabase().query(
                         "exp", null, null, null, null, null, null);
                 c.moveToFirst();
@@ -132,6 +150,8 @@ public class MainActivity extends AppCompatActivity  implements
                 Log.v(TAG,"query =" + c.getString(2));
                 Log.v(TAG,"query =" + c.getString(3));
                 //helper.getWritableDatabase().delete("exp",null,null);
+                */
+                //mJudgeStore = new JudgeStore(helper.getWritableDatabase());
             }
         });
 
@@ -155,7 +175,6 @@ public class MainActivity extends AppCompatActivity  implements
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(10*1000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-
         mLocationRequest.setFastestInterval(1000);
 
     }
@@ -414,18 +433,33 @@ public class MainActivity extends AppCompatActivity  implements
                 //String tel = hmPlace.get("");
 
                 String photo = hmPlace.get("photo");
+                boolean nowopen = Boolean.parseBoolean(hmPlace.get("nowopen"));
+                //String nowopen = hmPlace.get("open_now");
                 //MarkerHelper markerHelper = new MarkerHelper(name, vicinity);
                 //MarkerHelper markerHelper = new MarkerHelper(new Lo)
                 //String snippet = GsonUtil.gson.toJson(markerHelper);
                 //arkerOptions.snippet(snippet);
                 //textname = name;
                 //Log.v(TAG,"name = " + name);
-                locationInfoList.add(new LocationInfo(String.valueOf(lat),String.valueOf(lng),vicinity,"",name,"restaurant",photo,100));
+                locationInfoList.add(new LocationInfo(String.valueOf(lat),String.valueOf(lng),vicinity,"",name,"restaurant",photo,100,nowopen));
                 Log.v(TAG,"textname = " + name);
                 Log.v(TAG,"photo = " + photo);
+                Log.v(TAG,"open_now = " + nowopen);
                 //Log.v(TAG,"tel = " + )
             }
-            handleIntent();
+            //show bitmap
+            if(JudgeShowSuggestStore()) {
+                store_name.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String startmaps = "geo:" + locationInfoList.get(show_index).getLat() + "," + locationInfoList.get(show_index).getLng() + "?q=" + locationInfoList.get(show_index).getName();
+                        Intent intent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(startmaps));
+                        startActivity(intent);
+                    }
+                });
+            } else {
+                store_name.setText("no store!");
+            }
             //LatLng latLng = new LatLng(mLatitude, mLongitude);
             //addMyLocationIcon(latLng);
         }
@@ -488,20 +522,29 @@ public class MainActivity extends AppCompatActivity  implements
         return data;
     }
 
-    private void handleIntent() {
-        final int selected_index = (int)(Math.random()*locationInfoList.size());
-        store_name.setText(locationInfoList.get(selected_index).getName());
-        store_address.setText(locationInfoList.get(selected_index).getVicinity());
-        store_tel.setText(locationInfoList.get(selected_index).getTel());
-        getBMPFromURL(locationInfoList.get(selected_index).getPhoto());
-        store_name.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String startmaps = "geo:" + locationInfoList.get(selected_index).getLat() + "," + locationInfoList.get(selected_index).getLng() + "?q=" + locationInfoList.get(selected_index).getName();
-                Intent intent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(startmaps));
-                startActivity(intent);
+    private boolean ShowSuggestStore(int selected_index) {
+        if (locationInfoList.get(selected_index).getOpen()) {
+            final int ok_index = selected_index;
+            store_name.setText(locationInfoList.get(ok_index).getName());
+            store_address.setText(locationInfoList.get(ok_index).getVicinity());
+            store_tel.setText(locationInfoList.get(ok_index).getTel());
+            getBMPFromURL(locationInfoList.get(ok_index).getPhoto());
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private boolean JudgeShowSuggestStore() {
+        final int index_max = locationInfoList.size();
+        while (!ShowSuggestStore(show_index)) {
+            Log.v(TAG,"show_index = " + show_index);
+            show_index++;
+            if((show_index + 1) > index_max) {
+                return false;
             }
-        });
+        }
+        return true;
     }
 
     protected void onStart() {

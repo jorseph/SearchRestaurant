@@ -56,6 +56,7 @@ public class PlaceJSONParser {
 		String latitude="";
 		String longitude="";
 		String photo_reference = "-NA-";
+		String now_open = "";
 		StringBuilder sb = new StringBuilder(ConfigUtil.GOOGLE_PHOTO_API);
 		
 		try {
@@ -71,11 +72,8 @@ public class PlaceJSONParser {
 
 			// Extracting Place Photo, if available
 			if(!jPlace.isNull("photos")){
-
 				JSONArray photos = jPlace.getJSONArray("photos");
-
 				//Run for loop for getting photo_reference string in each object
-
 				for (int i=0; i < 1; i++){
 					JSONObject getPhtotos = photos.getJSONObject(i);
 					photo_reference = getPhtotos.getString("photo_reference");
@@ -85,8 +83,10 @@ public class PlaceJSONParser {
 			}
 
 			latitude = jPlace.getJSONObject("geometry").getJSONObject("location").getString("lat");
-			longitude = jPlace.getJSONObject("geometry").getJSONObject("location").getString("lng");			
-			
+			longitude = jPlace.getJSONObject("geometry").getJSONObject("location").getString("lng");
+			if(!jPlace.isNull("opening_hours")) {
+				now_open = jPlace.getJSONObject("opening_hours").getString("open_now");
+			}
 			
 			place.put("place_name", placeName);
 			place.put("vicinity", vicinity);
@@ -94,6 +94,7 @@ public class PlaceJSONParser {
 			place.put("lng", longitude);
 			//a string builder here to create the url
 			place.put("photo", sb.toString());
+			place.put("nowopen", now_open);
 		} catch (JSONException e) {			
 			e.printStackTrace();
 		}		
