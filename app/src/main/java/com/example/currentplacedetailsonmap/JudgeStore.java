@@ -9,6 +9,7 @@ import com.example.currentplacedetailsonmap.data.LocationInfo;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import static com.example.currentplacedetailsonmap.util.ConfigUtil.TAG;
@@ -18,13 +19,12 @@ import static com.example.currentplacedetailsonmap.util.ConfigUtil.TAG;
  */
 
 public class JudgeStore {
-    private SQLiteDatabase store_db;
+    private List<LocationInfo> locationInfoList;
+    private int show_index = -1;
 
-    public JudgeStore(SQLiteDatabase DB) {
-        store_db = DB;
+    public JudgeStore(List<LocationInfo> locationInfoList) {
+        this.locationInfoList = locationInfoList;
     }
-
-    public JudgeStore() {    }
 
     public LocationInfo SuggestStore() {
         String nowTime = getTime();
@@ -32,7 +32,32 @@ public class JudgeStore {
         return null;
     }
 
-    public String getTime() {
+    public LocationInfo GetNextStore() {
+        show_index++;
+        return JudgeShowSuggestStore();
+    }
+
+    private boolean ShowSuggestStore(int selected_index) {
+        if (locationInfoList.get(selected_index).getOpen()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private LocationInfo JudgeShowSuggestStore() {
+        final int index_max = locationInfoList.size();
+        while (!ShowSuggestStore(show_index)) {
+            Log.v(TAG,"show_index = " + show_index);
+            if((show_index + 1) >= index_max) {
+                show_index = -1;
+            }
+            show_index++;
+        }
+        return locationInfoList.get(show_index);
+    }
+
+    private String getTime() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         //sdf.applyPattern("MM/dd/yyyy") ;
         //try {

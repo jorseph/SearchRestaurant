@@ -88,7 +88,6 @@ public class MainActivity extends AppCompatActivity  implements
     LocationRequest mLocationRequest;
     private Button btn_OK,btn_next;
     private List<LocationInfo> locationInfoList;
-
     private MyDBHelper helper;
 
     @Override
@@ -124,22 +123,18 @@ public class MainActivity extends AppCompatActivity  implements
             @Override
             public void onClick(View v) {
                 //show google map.
-                show_index++;
-                if((show_index + 1) > locationInfoList.size()) {
-                    store_name.setText("no store!");
-                }
-                if(JudgeShowSuggestStore()) {
-                    store_name.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            String startmaps = "geo:" + locationInfoList.get(show_index).getLat() + "," + locationInfoList.get(show_index).getLng() + "?q=" + locationInfoList.get(show_index).getName();
-                            Intent intent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(startmaps));
-                            startActivity(intent);
-                        }
-                    });
-                } else {
-                    store_name.setText("no store!");
-                }
+                final LocationInfo select_store = mJudgeStore.GetNextStore();
+                //show bitmap
+                store_name.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String startmaps = "geo:" + select_store.getLat() + "," + select_store.getLng() + "?q=" + select_store.getName();
+                        Intent intent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(startmaps));
+                        startActivity(intent);
+                    }
+                });
+                store_name.setText(select_store.getName());
+                getBMPFromURL(select_store.getPhoto());
                 //get data from DB.
                 /*
                 Cursor c = helper.getReadableDatabase().query(
@@ -447,19 +442,21 @@ public class MainActivity extends AppCompatActivity  implements
                 Log.v(TAG,"open_now = " + nowopen);
                 //Log.v(TAG,"tel = " + )
             }
+
+            mJudgeStore = new JudgeStore(locationInfoList);
+            final LocationInfo fitst_store = mJudgeStore.GetNextStore();
             //show bitmap
-            if(JudgeShowSuggestStore()) {
-                store_name.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        String startmaps = "geo:" + locationInfoList.get(show_index).getLat() + "," + locationInfoList.get(show_index).getLng() + "?q=" + locationInfoList.get(show_index).getName();
-                        Intent intent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(startmaps));
-                        startActivity(intent);
-                    }
-                });
-            } else {
-                store_name.setText("no store!");
-            }
+            store_name.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String startmaps = "geo:" + fitst_store.getLat() + "," + fitst_store.getLng() + "?q=" + fitst_store.getName();
+                    Intent intent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(startmaps));
+                    startActivity(intent);
+                }
+            });
+            store_name.setText(fitst_store.getName());
+            getBMPFromURL(fitst_store.getPhoto());
+
             //LatLng latLng = new LatLng(mLatitude, mLongitude);
             //addMyLocationIcon(latLng);
         }
@@ -473,6 +470,7 @@ public class MainActivity extends AppCompatActivity  implements
     /**
      * 用關鍵字搜尋地標
      *
+     *
      * @param keyword
      */
     private void searchKeyword(String keyword) {
@@ -485,6 +483,26 @@ public class MainActivity extends AppCompatActivity  implements
             sb.append("&types=" + keyword);
             sb.append("&sensor=true");
             sb.append("&key=" + ConfigUtil.API_KEY_GOOGLE_MAP);  //server key
+            MainActivity.PlacesTask placesTask = new MainActivity.PlacesTask(MainActivity.this);
+            Log.v(TAG, sb.toString());
+            placesTask.execute(sb.toString());
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            Log.i(ConfigUtil.TAG, "Except ion:" + e);
+        }
+    }
+
+    private void searchKeywordNextPage(String keyword) {
+        try {
+            String unitStr = URLEncoder.encode(keyword, "utf8");  //字體要utf8編碼
+            StringBuilder sb = new StringBuilder(ConfigUtil.GOOGLE_SEARCH_API);
+            sb.append("location=" + mLatitude + "," + mLongitude);
+            sb.append("&radius=" + radius);
+            sb.append("&language =" + language);
+            sb.append("&types=" + keyword);
+            sb.append("&sensor=true");
+            sb.append("&key=" + ConfigUtil.API_KEY_GOOGLE_MAP);  //server key
+            sb.append("&pagetoken=" + )
             MainActivity.PlacesTask placesTask = new MainActivity.PlacesTask(MainActivity.this);
             Log.v(TAG, sb.toString());
             placesTask.execute(sb.toString());
@@ -520,31 +538,6 @@ public class MainActivity extends AppCompatActivity  implements
             urlConnection.disconnect();
         }
         return data;
-    }
-
-    private boolean ShowSuggestStore(int selected_index) {
-        if (locationInfoList.get(selected_index).getOpen()) {
-            final int ok_index = selected_index;
-            store_name.setText(locationInfoList.get(ok_index).getName());
-            store_address.setText(locationInfoList.get(ok_index).getVicinity());
-            store_tel.setText(locationInfoList.get(ok_index).getTel());
-            getBMPFromURL(locationInfoList.get(ok_index).getPhoto());
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    private boolean JudgeShowSuggestStore() {
-        final int index_max = locationInfoList.size();
-        while (!ShowSuggestStore(show_index)) {
-            Log.v(TAG,"show_index = " + show_index);
-            show_index++;
-            if((show_index + 1) > index_max) {
-                return false;
-            }
-        }
-        return true;
     }
 
     protected void onStart() {
