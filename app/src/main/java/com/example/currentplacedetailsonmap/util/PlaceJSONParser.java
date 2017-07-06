@@ -25,6 +25,22 @@ public class PlaceJSONParser {
 		 */
 		return getPlaces(jPlaces);
 	}
+
+	/** Receives a JSONObject and returns a stringc */
+	public String getPageToken(JSONObject jObject){
+
+		String PageToken = null;
+		try {
+			/** Retrieves all the elements in the 'places' array */
+			PageToken = jObject.getString("next_page_token");
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		/** Invoking getPlaces with the array of json object
+		 * where each json object represent a place
+		 */
+		return PageToken;
+	}
 	
 	
 	private List<HashMap<String, String>> getPlaces(JSONArray jPlaces){

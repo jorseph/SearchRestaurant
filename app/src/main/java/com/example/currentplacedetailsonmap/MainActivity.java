@@ -77,6 +77,7 @@ public class MainActivity extends AppCompatActivity  implements
     private GoogleApiClient mGoogleApiClient;
 
     private static final String KEY_LOCATION = "location";
+    private String page_token = "";
 
     public static final int LOCATION_UPDATE_MIN_DISTANCE = 10;
     public static final int LOCATION_UPDATE_MIN_TIME = 5000;
@@ -124,29 +125,28 @@ public class MainActivity extends AppCompatActivity  implements
             public void onClick(View v) {
                 //show google map.
                 final LocationInfo select_store = mJudgeStore.GetNextStore();
-                //show bitmap
-                store_name.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        String startmaps = "geo:" + select_store.getLat() + "," + select_store.getLng() + "?q=" + select_store.getName();
-                        Intent intent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(startmaps));
-                        startActivity(intent);
+                if(select_store != null) {
+                    //show bitmap
+                    store_name.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            String startmaps = "geo:" + select_store.getLat() + "," + select_store.getLng() + "?q=" + select_store.getName();
+                            Intent intent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(startmaps));
+                            startActivity(intent);
+                        }
+                    });
+                    store_name.setText(select_store.getName());
+                    getBMPFromURL(select_store.getPhoto());
+                } else {
+                    Log.v(TAG,"searchKeywordNextPage");
+                    if(page_token != null) {
+                        searchKeywordNextPage("restaurant");
+                        //btn_next.performClick();
+                    } else {
+                        searchKeyword("restaurant");
+                        //btn_next.performClick();
                     }
-                });
-                store_name.setText(select_store.getName());
-                getBMPFromURL(select_store.getPhoto());
-                //get data from DB.
-                /*
-                Cursor c = helper.getReadableDatabase().query(
-                        "exp", null, null, null, null, null, null);
-                c.moveToFirst();
-                Log.v(TAG,"query =" + c.getString(0));
-                Log.v(TAG,"query =" + c.getString(1));
-                Log.v(TAG,"query =" + c.getString(2));
-                Log.v(TAG,"query =" + c.getString(3));
-                //helper.getWritableDatabase().delete("exp",null,null);
-                */
-                //mJudgeStore = new JudgeStore(helper.getWritableDatabase());
+                }
             }
         });
 
@@ -311,6 +311,8 @@ public class MainActivity extends AppCompatActivity  implements
             this.context = context;
         }
 
+
+
         @Override
         protected String doInBackground(String... url) {
             try {
@@ -400,6 +402,7 @@ public class MainActivity extends AppCompatActivity  implements
                 jObject = new JSONObject(jsonData[0]);
                 Log.v(TAG,jObject.toString());
                 places = placeJsonParser.parse(jObject);
+                page_token = placeJsonParser.getPageToken(jObject);
 
             } catch (Exception e) {
                 Log.d("Exception", e.toString());
@@ -464,7 +467,7 @@ public class MainActivity extends AppCompatActivity  implements
 
     private void getBMPFromURL(String URL) {
         MainActivity.PhotoTask photoTask = new MainActivity.PhotoTask(MainActivity.this);
-        Log.v(TAG, URL);
+        //Log.v(TAG, URL);
         photoTask.execute(URL);
     }
     /**
@@ -502,7 +505,7 @@ public class MainActivity extends AppCompatActivity  implements
             sb.append("&types=" + keyword);
             sb.append("&sensor=true");
             sb.append("&key=" + ConfigUtil.API_KEY_GOOGLE_MAP);  //server key
-            sb.append("&pagetoken=" + )
+            sb.append("&pagetoken=" + page_token);
             MainActivity.PlacesTask placesTask = new MainActivity.PlacesTask(MainActivity.this);
             Log.v(TAG, sb.toString());
             placesTask.execute(sb.toString());

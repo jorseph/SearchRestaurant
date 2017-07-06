@@ -34,6 +34,7 @@ public class JudgeStore {
 
     public LocationInfo GetNextStore() {
         show_index++;
+        Log.v(TAG,"show_index = " + show_index);
         return JudgeShowSuggestStore();
     }
 
@@ -47,11 +48,15 @@ public class JudgeStore {
 
     private LocationInfo JudgeShowSuggestStore() {
         final int index_max = locationInfoList.size();
+        Log.v(TAG,"index_max = " + index_max);
+
+        if((show_index + 1) >= index_max) {
+            show_index = -1;
+            Log.v(TAG,"no store could be suggested.");
+            return null;
+        }
+
         while (!ShowSuggestStore(show_index)) {
-            Log.v(TAG,"show_index = " + show_index);
-            if((show_index + 1) >= index_max) {
-                show_index = -1;
-            }
             show_index++;
         }
         return locationInfoList.get(show_index);
