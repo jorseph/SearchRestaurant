@@ -57,8 +57,6 @@ public class MainActivity extends AppCompatActivity  implements
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private TextView store_name;
-    private TextView store_address;
-    private TextView store_tel;
     private ImageView store_photo;
     private JudgeStore mJudgeStore;
 
@@ -151,8 +149,6 @@ public class MainActivity extends AppCompatActivity  implements
         });
 
         store_name = (TextView)findViewById(R.id.store_name);
-        store_address = (TextView)findViewById(R.id.store_address);
-        store_tel = (TextView)findViewById(R.id.store_phone_number);
         store_photo = (ImageView)findViewById(R.id.store_photo);
 
         helper = new MyDBHelper(this, "expense.db", null, 1);
