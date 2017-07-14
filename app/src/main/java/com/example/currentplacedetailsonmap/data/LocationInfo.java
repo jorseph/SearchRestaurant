@@ -10,6 +10,7 @@ public class LocationInfo {
 	private String name;
 	private String atype;
 	private String photo_URL;
+	private int rating;
     private int score;
 	private boolean nowopen;
 
@@ -20,7 +21,7 @@ public class LocationInfo {
 		this.tel = tel;
 	}
 	public LocationInfo(String lat, String lng, String vicinity, String tel,
-			String name, String atype, String photo_URL, int score, boolean nowopen) {
+			String name, String atype, String photo_URL,int rating, int score, boolean nowopen) {
 		super();
 		this.lat = lat;
 		this.lng = lng;
@@ -29,6 +30,7 @@ public class LocationInfo {
 		this.name = name;
 		this.atype = atype;
 		this.photo_URL = photo_URL;
+		this.rating = rating;
         this.score = score;
 		this.nowopen = nowopen;
 	}
@@ -68,6 +70,7 @@ public class LocationInfo {
 	public void setPhoto(Integer photo) {
 		this.photo_URL = photo_URL;
 	}
+	public int getRating() {return rating;}
 	public int getScore() {return score;}
     public void setScore(int score) {this.score = score;}
 	public boolean getOpen() {return nowopen;}

@@ -72,6 +72,7 @@ public class PlaceJSONParser {
 		String latitude="";
 		String longitude="";
 		String photo_reference = "-NA-";
+		String rating = "";
 		String now_open = "";
 		StringBuilder sb = new StringBuilder(ConfigUtil.GOOGLE_PHOTO_API);
 		
@@ -84,6 +85,13 @@ public class PlaceJSONParser {
 			// Extracting Place Vicinity, if available
 			if(!jPlace.isNull("vicinity")){
 				vicinity = jPlace.getString("vicinity");
+			}
+
+			// Extracting Place Rating, if available
+			if(!jPlace.isNull("rating")){
+				rating = jPlace.getString("rating");
+			} else {
+				rating = "0.0";
 			}
 
 			// Extracting Place Photo, if available
@@ -108,6 +116,7 @@ public class PlaceJSONParser {
 			place.put("vicinity", vicinity);
 			place.put("lat", latitude);
 			place.put("lng", longitude);
+			place.put("rating", rating);
 			//a string builder here to create the url
 			place.put("photo", sb.toString());
 			place.put("nowopen", now_open);
