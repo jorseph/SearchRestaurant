@@ -24,7 +24,6 @@ public class SelectiveViewPager extends ViewPager {
     @Override
     public boolean onInterceptTouchEvent(MotionEvent e) {
         if (paging) {
-            Log.v("hi","hi");
             return super.onInterceptTouchEvent(e);
         }
 

@@ -10,51 +10,9 @@
 
     <!-- A CardView that contains a TextView -->
 
-    <RelativeLayout
-        android:id="@+id/Image_layout"
-        android:layout_width="match_parent"
-        android:layout_height="400dp"
-        android:orientation="vertical">
-
-        <com.example.currentplacedetailsonmap.SelectiveViewPager
-            android:id="@+id/pager"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
-
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:id="@+id/Button_layout"
+    <ImageView
+        android:id="@+id/imageView2"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/Image_layout"
-        android:orientation="vertical">
-
-        <Button
-            android:id="@+id/button_next"
-            android:layout_width="150dp"
-            android:layout_height="wrap_content"
-            android:layout_alignBaseline="@+id/button_OK"
-            android:layout_alignBottom="@+id/button_OK"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="false"
-            android:layout_gravity="bottom|right"
-            android:layout_marginRight="0dp"
-            android:layout_weight="1"
-            android:background="@color/wallet_dim_foreground_disabled_holo_dark"
-            android:text="@string/button_next" />
-
-        <Button
-            android:id="@+id/button_OK"
-            android:layout_width="150dp"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
-            android:layout_gravity="bottom|right"
-            android:layout_marginTop="12dp"
-            android:background="@color/wallet_dim_foreground_holo_dark"
-            android:text="@string/button_OK" />
-    </RelativeLayout>
-
+        app:srcCompat="@mipmap/ic_launcher" />
 </RelativeLayout>

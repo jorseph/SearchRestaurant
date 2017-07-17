@@ -1,7 +1,9 @@
 package com.example.currentplacedetailsonmap.data;
 
 
-public class LocationInfo {
+import java.io.Serializable;
+
+public class LocationInfo implements Serializable {
 
 	private String lat;
 	private String lng;

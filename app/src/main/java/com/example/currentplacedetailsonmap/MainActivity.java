@@ -1,31 +1,18 @@
 package com.example.currentplacedetailsonmap;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.currentplacedetailsonmap.data.LocationInfo;
 import com.example.currentplacedetailsonmap.util.ConfigUtil;
@@ -36,7 +23,6 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.model.LatLng;
-import com.spreada.utils.chinese.ZHConverter;
 
 import org.json.JSONObject;
 
@@ -61,13 +47,8 @@ public class MainActivity extends AppCompatActivity  implements
 {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-    //private TextView store_name;
-    //private ImageView store_photo;
-    private JudgeStore mJudgeStore;
-
     private final int radius = 500;
     private final String language = "zh-TW";
-    private int show_index = 0;
     // The geographical location where the device is currently located. That is, the last-known
     // location retrieved by the Fused Location Provider.
     private Location mLastKnownLocation;
@@ -87,14 +68,11 @@ public class MainActivity extends AppCompatActivity  implements
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
 
     private LocationManager mLocationManager;
-    private Context mcontext;
     private Location mCurrentLocation;
     LocationRequest mLocationRequest;
-    private Button btn_OK,btn_next;
-    private List<LocationInfo> locationInfoList;
-    private MyDBHelper helper;
-    private SelectiveViewPager mViewPager;
-    private List<PageView> pageList;
+    //private Button btn_OK,btn_next;
+    private ArrayList<LocationInfo> locationInfoList;
+    //private MyDBHelper helper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,65 +81,9 @@ public class MainActivity extends AppCompatActivity  implements
         if (savedInstanceState != null) {
             mLastKnownLocation = savedInstanceState.getParcelable(KEY_LOCATION);
         }
-        mcontext = getApplication().getApplicationContext();
         locationInfoList = new ArrayList<LocationInfo>();
         setContentView(R.layout.activity_main);
-
-        btn_OK = (Button) findViewById(R.id.button_OK);
-        btn_OK.setOnClickListener(new Button.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                //save data into DB
-                String cdate = "cdate";
-                //String storeinfo = store_name.getText().toString();
-                String storeinfo = "11";
-                int score = 2;
-                ContentValues values = new ContentValues();
-                values.put("cdate", cdate);
-                values.put("storeinfo", storeinfo);
-                values.put("score", score);
-                long id = helper.getWritableDatabase().insert("exp", null, values);
-                Log.d("ADD", id+"");
-                finish();
-            }
-        });
-
-        btn_next = (Button) findViewById(R.id.button_next);
-        btn_next.setOnClickListener(new Button.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                //show google map.
-                final LocationInfo select_store = mJudgeStore.GetNextStore();
-                if(select_store != null) {
-                    //show bitmap
-                    //store_name.setOnClickListener(new View.OnClickListener() {
-                    //    @Override
-                    //    public void onClick(View v) {
-                    //        String startmaps = "geo:" + select_store.getLat() + "," + select_store.getLng() + "?q=" + select_store.getName();
-                    //        Intent intent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(startmaps));
-                    //        startActivity(intent);
-                    ///    }
-                    //});
-                    String traditionalStr = ZHConverter.convert(select_store.getName(), ZHConverter.TRADITIONAL);
-                    //store_name.setText(traditionalStr);
-                    getBMPFromURL(select_store.getPhoto());
-                } else {
-                    Log.v(TAG,"searchKeywordNextPage");
-                    if(page_token != null) {
-                        searchKeywordNextPage("restaurant");
-                        //btn_next.performClick();
-                    } else {
-                        searchKeyword("restaurant");
-                        //btn_next.performClick();
-                    }
-                }
-            }
-        });
-
-        //store_name = (TextView)findViewById(R.id.store_name);
-        //store_photo = (ImageView)findViewById(R.id.store_photo);
-
-        helper = new MyDBHelper(this, "expense.db", null, 1);
+        //helper = new MyDBHelper(this, "expense.db", null, 1);
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .enableAutoManage(this /* FragmentActivity */,
@@ -178,8 +100,7 @@ public class MainActivity extends AppCompatActivity  implements
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         mLocationRequest.setFastestInterval(1000);
 
-        initData();
-        initView();
+
     }
 
     @Override
@@ -211,20 +132,10 @@ public class MainActivity extends AppCompatActivity  implements
     }
     @Override
     public void onConnected(Bundle bundle) {
-        //int i = 0;
         // Display the connection status
-        Toast.makeText(this, "Connected", Toast.LENGTH_SHORT).show();
-        //LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+        //Toast.makeText(this, "Connected", Toast.LENGTH_SHORT).show();
         getCurrentLocation();
         searchKeyword("restaurant");
-        //i++;
-        //while(page_token != null) {
-        //    searchKeywordNextPage("restaurant");
-        //    i++;
-         //   if(i >= 3) {
-        //        break;
-        //    }
-        //}
     }
 
     private void getCurrentLocation() {
@@ -234,7 +145,7 @@ public class MainActivity extends AppCompatActivity  implements
 
         Location location = null;
 
-                /*
+        /*
          * Request location permission, so that we can get the location of the
          * device. The result of the permission request is handled by a callback,
          * onRequestPermissionsResult.
@@ -270,7 +181,6 @@ public class MainActivity extends AppCompatActivity  implements
 
             if (!(isGPSEnabled || isNetworkEnabled)) {
             }
-            //Snackbar.make(mMapView, R.string.error_location_provider, Snackbar.LENGTH_INDEFINITE).show();
             else {
                 if (isNetworkEnabled) {
                     mLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
@@ -286,8 +196,6 @@ public class MainActivity extends AppCompatActivity  implements
             }
             if (location != null) {
                 Log.d(TAG, "" + location.getLatitude() + " " + location.getLongitude());
-                //mLatitude = location.getLatitude();
-                //mLongitude = location.getLongitude();
             }
         }
     }
@@ -352,62 +260,15 @@ public class MainActivity extends AppCompatActivity  implements
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            //context.dialog = ProgressDialog.show(context, "",
-            //       context.getString(R.string.loading), true);
-            //context.openPlacesDialog();
         }
 
         @Override
         protected void onPostExecute(String result) {
-            //context.dialog.dismiss();
-            //context.dismissDialog(2);
             MainActivity.ParserTask parserTask = new MainActivity.ParserTask();
             parserTask.execute(result);
         }
     }
 
-    /**
-     * A class, to download Places Photo
-     */
-    private class PhotoTask extends AsyncTask<String, Integer, Bitmap> {
-
-        private MainActivity context = null;
-
-        public PhotoTask(MainActivity context) {
-            this.context = context;
-        }
-
-        @Override
-        protected Bitmap doInBackground(String... params) {
-            try {
-                Bitmap bitmap = null;
-                URL url = new URL(params[0]);
-                //bitmap = downloadPhotoUrl(url[0]);
-                bitmap = BitmapFactory.decodeStream(url.openConnection().getInputStream());
-                return bitmap;
-            } catch (Exception e) {
-                Log.d(TAG, e.toString());
-                return null;
-            }
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            //context.dialog = ProgressDialog.show(context, "",
-            //       context.getString(R.string.loading), true);
-            //context.openPlacesDialog();
-        }
-
-        @Override
-        protected void onPostExecute(Bitmap result) {
-            //context.dialog.dismiss();
-            //context.dismissDialog(2);
-            //MainActivity.ParserTask parserTask = new MainActivity.ParserTask();
-            //parserTask.execute(result);
-            //store_photo.setImageBitmap(result);
-        }
-    }
 
 
 
@@ -438,29 +299,16 @@ public class MainActivity extends AppCompatActivity  implements
 
         @Override
         protected void onPostExecute(List<HashMap<String, String>> list) {
-
-            // Clears all the existing markers
-            //mMap.clear();
-            //mapInfoAdapter.setKeyword(true);
-            String textname = "";
             for (int i = 0; i < list.size(); i++) {
-                //MarkerOptions markerOptions = new MarkerOptions();
                 HashMap<String, String> hmPlace = list.get(i);
                 double lat = Double.parseDouble(hmPlace.get("lat"));
                 double lng = Double.parseDouble(hmPlace.get("lng"));
-                LatLng latLng = new LatLng(lat, lng);
-                //markerOptions.position(latLng);
                 String name = hmPlace.get("place_name");
-                //markerOptions.title(name);
                 String vicinity = hmPlace.get("vicinity");
-                //String tel = hmPlace.get("")
                 int rating = (int)(Float.valueOf(hmPlace.get("rating"))*10);
                 String photo = hmPlace.get("photo");
                 boolean nowopen = Boolean.parseBoolean(hmPlace.get("nowopen"));
                 locationInfoList.add(new LocationInfo(String.valueOf(lat),String.valueOf(lng),vicinity,"",name,"restaurant",photo,rating,100,nowopen));
-                //Log.v(TAG,"textname = " + name);
-                //Log.v(TAG,"photo = " + photo);
-                //Log.v(TAG,"open_now = " + nowopen);
                 Log.v(TAG,"rating = " + rating);
             }
 
@@ -473,37 +321,16 @@ public class MainActivity extends AppCompatActivity  implements
                         return o2.getRating()-o1.getRating();
                     }
                 });
-                for(int i = 0; i < locationInfoList.size(); i++) {
+                /*for(int i = 0; i < locationInfoList.size(); i++) {
                     Log.v(TAG, "locationInfoList = " + locationInfoList.get(i).getName().toString());
                     Log.v(TAG, "locationInfoList = " + locationInfoList.get(i).getRating());
-                }
+                }*/
+                ShowStoreStart(locationInfoList);
             }
-
-            //mJudgeStore = new JudgeStore(locationInfoList);
-            //final LocationInfo fitst_store = mJudgeStore.GetNextStore();
-            //show bitmap
-            //store_name.setOnClickListener(new View.OnClickListener() {
-            //    @Override
-            //    public void onClick(View v) {
-            //        String startmaps = "geo:" + fitst_store.getLat() + "," + fitst_store.getLng() + "?q=" + fitst_store.getName();
-            //        Intent intent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(startmaps));
-            //        startActivity(intent);
-            //    }
-            //});
-            //String traditionalStr = ZHConverter.convert(fitst_store.getName(), ZHConverter.TRADITIONAL);
-            //store_name.setText(traditionalStr);
-            //getBMPFromURL(fitst_store.getPhoto());
-
-            //LatLng latLng = new LatLng(mLatitude, mLongitude);
-            //addMyLocationIcon(latLng);
         }
     }
 
-    private void getBMPFromURL(String URL) {
-        MainActivity.PhotoTask photoTask = new MainActivity.PhotoTask(MainActivity.this);
-        //Log.v(TAG, URL);
-        photoTask.execute(URL);
-    }
+
     /**
      * 用關鍵字搜尋地標
      *
@@ -589,40 +416,14 @@ public class MainActivity extends AppCompatActivity  implements
         super.onStop();
     }
 
-    private void initView() {
-        mViewPager  = (SelectiveViewPager) findViewById(R.id.pager);
-        mViewPager.setAdapter(new SamplePagerAdapter());
-    }
 
-    private void initData() {
-        pageList = new ArrayList<>();
-        pageList.add(new PageOneView(mcontext));
-        pageList.add(new PageTwoView(mcontext));
-        pageList.add(new PageThreeView(mcontext));
-    }
-
-    private class SamplePagerAdapter extends PagerAdapter {
-
-        @Override
-        public int getCount() {
-            return pageList.size();
-        }
-
-        @Override
-        public boolean isViewFromObject(View view, Object o) {
-            return o == view;
-        }
-
-        @Override
-        public Object instantiateItem(ViewGroup container, int position) {
-            container.addView(pageList.get(position));
-            return pageList.get(position);
-        }
-        @Override
-        public void destroyItem(ViewGroup container, int position, Object object) {
-            container.removeView((View) object);
-        }
-
+    private void ShowStoreStart(ArrayList<LocationInfo> data) {
+        Log.d(TAG, "ShowStoreStart()");
+        Intent intentToShowStoreActivity = new Intent();
+        intentToShowStoreActivity.putExtra("LocationInfo", data);
+        intentToShowStoreActivity.setClass(MainActivity.this, ShowStoreActivity.class);
+        intentToShowStoreActivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intentToShowStoreActivity);
     }
 }
 
