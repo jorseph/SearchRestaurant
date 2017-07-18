@@ -1,4 +1,4 @@
-package com.example.currentplacedetailsonmap;
+package com.example.currentplacedetailsonmap.Others;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -26,7 +26,7 @@ public class MyDBHelper extends SQLiteOpenHelper {
         // TODO Auto-generated method stub
         // 建立要存放資料的資料表格
         // 1. SQL語法不分大小寫
-        // 2. 這裡大寫代表的是SQL標準語法, 小寫字是資料表/欄位的命名
+        // 2. 這裡大寫代表的是SQL標準語法, 小寫字是資料表/欄位re命名
         // 建立應用程式需要的表格
         db.execSQL("CREATE  TABLE main.exp " +
                 "(_id INTEGER PRIMARY KEY  NOT NULL , " +

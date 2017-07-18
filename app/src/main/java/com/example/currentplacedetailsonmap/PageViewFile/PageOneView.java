@@ -1,4 +1,4 @@
-package com.example.currentplacedetailsonmap;
+package com.example.currentplacedetailsonmap.PageViewFile;
 
 import android.content.Context;
 import android.content.Intent;
@@ -12,12 +12,11 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.currentplacedetailsonmap.R;
 import com.example.currentplacedetailsonmap.data.LocationInfo;
 import com.spreada.utils.chinese.ZHConverter;
 
 import java.net.URL;
-
-import static com.example.currentplacedetailsonmap.util.ConfigUtil.TAG;
 
 /**
  * Created by jorseph on 2017/7/11.

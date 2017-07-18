@@ -1,4 +1,4 @@
-package com.example.currentplacedetailsonmap;
+package com.example.currentplacedetailsonmap.PageViewFile;
 
 import android.content.Context;
 import android.widget.RelativeLayout;

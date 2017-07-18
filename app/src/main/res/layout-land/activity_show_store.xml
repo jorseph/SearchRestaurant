@@ -17,8 +17,7 @@
         <com.example.currentplacedetailsonmap.PageViewFile.SelectiveViewPager
             android:id="@+id/pager"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@android:color/white" />
+            android:layout_height="match_parent" />
 
     </RelativeLayout>
 
@@ -41,7 +40,7 @@
             android:layout_alignParentTop="true"
             android:layout_gravity="bottom|right"
             android:layout_marginTop="12dp"
-            android:background="@color/wallet_dim_foreground_holo_dark"
+            android:background="@color/wallet_dim_foreground_disabled_holo_dark"
             android:text="@string/button_OK" />
 
         <Button

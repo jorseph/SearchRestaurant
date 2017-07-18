@@ -1,4 +1,4 @@
-package com.example.currentplacedetailsonmap;
+package com.example.currentplacedetailsonmap.Others;
 
 import java.text.SimpleDateFormat;
 
