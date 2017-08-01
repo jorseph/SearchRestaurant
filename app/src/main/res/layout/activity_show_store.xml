@@ -4,59 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/background"
     tools:context="com.example.currentplacedetailsonmap.Activity.ShowStoreActivity">
 
-    <RelativeLayout
-        android:id="@+id/Image_layout"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/list_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        tools:layout_editor_absoluteX="8dp"
-        tools:layout_editor_absoluteY="0dp">
+        android:layout_alignParentBottom="true" />
 
-        <com.example.currentplacedetailsonmap.PageViewFile.SelectiveViewPager
-            android:id="@+id/pager"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@android:color/white" />
-
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:id="@+id/Button_layout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/Image_layout"
-        android:orientation="vertical"
-        android:visibility="gone"
-        tools:layout_editor_absoluteX="8dp"
-        tools:layout_editor_absoluteY="8dp">
-
-        <Button
-            android:id="@+id/button_OK"
-            android:layout_width="150dp"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
-            android:layout_gravity="bottom|right"
-            android:layout_marginTop="12dp"
-            android:background="@color/wallet_dim_foreground_holo_dark"
-            android:text="@string/button_OK" />
-
-        <Button
-            android:id="@+id/button_next"
-            android:layout_width="150dp"
-            android:layout_height="wrap_content"
-            android:layout_alignBaseline="@+id/button_OK"
-            android:layout_alignBottom="@+id/button_OK"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="false"
-            android:layout_gravity="bottom|right"
-            android:layout_marginRight="0dp"
-            android:layout_weight="1"
-            android:background="@color/wallet_dim_foreground_disabled_holo_dark"
-            android:text="@string/button_next" />
-
-    </RelativeLayout>
 </RelativeLayout>

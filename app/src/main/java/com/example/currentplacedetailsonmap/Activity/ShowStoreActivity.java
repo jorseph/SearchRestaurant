@@ -4,6 +4,8 @@ import android.content.Context;
 import android.support.v4.view.PagerAdapter;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -29,8 +31,15 @@ public class ShowStoreActivity extends AppCompatActivity {
         mcontext = getApplication().getApplicationContext();
         setContentView(R.layout.activity_show_store);
         locationInfoList =  (ArrayList<LocationInfo>)getIntent().getSerializableExtra("LocationInfo");
-        initData();
-        initView();
+
+        DataAdapter adapter = new DataAdapter(getApplicationContext(),locationInfoList);
+        RecyclerView mList = (RecyclerView) findViewById(R.id.list_view);
+        final LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
+        mList.setLayoutManager(layoutManager);
+        mList.setAdapter(adapter);
+        //initData();
+        //initView();
         /*for(int i = 0; i < locationInfoList.size(); i++) {
             Log.v(TAG, "locationInfoList = " + locationInfoList.get(i).getName().toString());
             Log.v(TAG, "locationInfoList = " + locationInfoList.get(i).getRating());
