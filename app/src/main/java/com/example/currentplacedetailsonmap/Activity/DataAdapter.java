@@ -1,7 +1,9 @@
 package com.example.currentplacedetailsonmap.Activity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,8 +38,18 @@ public class DataAdapter extends RecyclerView.Adapter<DataAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(DataAdapter.ViewHolder holder, int position) {
-        Picasso.with(mContext).load(mData.get(position).getPhoto()).into(holder.imageView);
-        holder.textView.setText(mData.get(position).getName());
+        Picasso.with(mContext).load(mData.get(position).getPhoto()).into(holder.store_photo);
+        final LocationInfo mlocationinfo = mData.get(position);
+        holder.store_name.setText(mData.get(position).getName());
+        holder.store_name.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String startmaps = "geo:" + mlocationinfo.getLat() + "," + mlocationinfo.getLng() + "?q=" + mlocationinfo.getName();
+                Intent intent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(startmaps));
+                mContext.startActivity(intent);
+            }
+        });
+
     }
 
     @Override
@@ -47,13 +59,13 @@ public class DataAdapter extends RecyclerView.Adapter<DataAdapter.ViewHolder> {
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
-        public ImageView imageView;
-        public TextView textView;
+        public ImageView store_photo;
+        public TextView store_name;
 
         public ViewHolder(View view) {
             super(view);
-            imageView = (ImageView) view.findViewById(R.id.img);
-            textView = (TextView) view.findViewById(R.id.info_text);
+            store_photo = (ImageView) view.findViewById(R.id.img);
+            store_name = (TextView) view.findViewById(R.id.info_text);
         }
     }
 
