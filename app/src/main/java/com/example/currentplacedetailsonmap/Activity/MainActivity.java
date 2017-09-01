@@ -324,24 +324,23 @@ public class MainActivity extends AppCompatActivity  implements
             } else {
                 //for(int i = 0; i < locationInfoList.size(); i++) {
 
-                    StoreDetail(locationInfoList.get(i).getPlaceid());
+                //ShowStoreStart(locationInfoList.get(i).getPlaceid());
                 //}
 
                 //for(int i = 0; i < phoneList.size(); i++) {
 
                 //}
-
-                //Collections.sort(locationInfoList, new Comparator<LocationInfo>() {
-                 //   @Override
-                //    public int compare(LocationInfo o1, LocationInfo o2) {
-                //        return o2.getRating()-o1.getRating();
-                //    }
-                //});
+                Collections.sort(locationInfoList, new Comparator<LocationInfo>() {
+                     @Override
+                    public int compare(LocationInfo o1, LocationInfo o2) {
+                        return o2.getRating()-o1.getRating();
+                    }
+                });
                 /*for(int i = 0; i < locationInfoList.size(); i++) {
                     Log.v(TAG, "locationInfoList = " + locationInfoList.get(i).getName().toString());
                     Log.v(TAG, "locationInfoList = " + locationInfoList.get(i).getRating());
                 }*/
-                //ShowStoreStart(locationInfoList);
+                StoreDetail(locationInfoList.get(0).getPlaceid());
             }
         }
     }
@@ -372,41 +371,6 @@ public class MainActivity extends AppCompatActivity  implements
         }
     }
 
-    private void searchKeywordNextPage(String keyword) {
-        try {
-            String unitStr = URLEncoder.encode(keyword, "utf8");  //字體要utf8編碼
-            StringBuilder sb = new StringBuilder(ConfigUtil.GOOGLE_SEARCH_API);
-            sb.append("location=" + mLatitude + "," + mLongitude);
-            sb.append("&radius=" + radius);
-            sb.append("&language =" + language);
-            sb.append("&types=" + keyword);
-            sb.append("&sensor=true");
-            sb.append("&key=" + ConfigUtil.API_KEY_GOOGLE_MAP);  //server key
-            sb.append("&pagetoken=" + page_token);
-            MainActivity.PlacesTask placesTask = new MainActivity.PlacesTask(MainActivity.this);
-            Log.v(TAG, sb.toString());
-            placesTask.execute(sb.toString());
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            Log.i(ConfigUtil.TAG, "Exception:" + e);
-        }
-    }
-
-    private void StoreDetail(String placeid) {
-        try {
-            String unitStr = URLEncoder.encode(placeid, "utf8");  //字體要utf8編碼
-            StringBuilder sb = new StringBuilder(ConfigUtil.GOOGLE_DETAIL_API);
-            sb.append("?placeid=" + placeid);
-            sb.append("&key=" + ConfigUtil.API_KEY_GOOGLE_MAP);  //server key
-            MainActivity.DetailsTask placesTask = new MainActivity.DetailsTask(MainActivity.this);
-            Log.v(TAG, sb.toString());
-            placesTask.execute(sb.toString());
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            Log.i(ConfigUtil.TAG, "Exception:" + e);
-        }
-    }
-
     /**
      * A class, to download Google Places
      */
@@ -424,7 +388,7 @@ public class MainActivity extends AppCompatActivity  implements
         @Override
         protected String doInBackground(String... url) {
             try {
-                Thread.sleep(1000);
+                Thread.sleep(500);
             } catch (InterruptedException e) {
                 Log.d(TAG,"error = " + e.toString());
             }
@@ -479,24 +443,41 @@ public class MainActivity extends AppCompatActivity  implements
             HashMap<String, String> hmPlace = list;
             String phone = hmPlace.get("phone");
             Log.v(TAG,"phone = " + phone);
-            locationInfoList.get(i).setPhone(phone);
-            if(i < (locationInfoList.size()-1)) {
-                i++;
-                StoreDetail(locationInfoList.get(i).getPlaceid());
-            } else {
-                Collections.sort(locationInfoList, new Comparator<LocationInfo>() {
-                   @Override
-                    public int compare(LocationInfo o1, LocationInfo o2) {
-                        return o2.getRating()-o1.getRating();
-                   }
-                });
-                /*for(int i = 0; i < locationInfoList.size(); i++) {
-                    Log.v(TAG, "locationInfoList = " + locationInfoList.get(i).getName().toString());
-                    Log.v(TAG, "locationInfoList = " + locationInfoList.get(i).getRating());
-                }*/
-                ShowStoreStart(locationInfoList);
-            }
+            locationInfoList.get(0).setPhone(phone);
+            ShowStoreStart(locationInfoList);
         }
+    }
+
+    private void searchKeywordNextPage(String keyword) {
+        try {
+            String unitStr = URLEncoder.encode(keyword, "utf8");  //字體要utf8編碼
+            StringBuilder sb = new StringBuilder(ConfigUtil.GOOGLE_SEARCH_API);
+            sb.append("location=" + mLatitude + "," + mLongitude);
+            sb.append("&radius=" + radius);
+            sb.append("&language =" + language);
+            sb.append("&types=" + keyword);
+            sb.append("&sensor=true");
+            sb.append("&key=" + ConfigUtil.API_KEY_GOOGLE_MAP);  //server key
+            sb.append("&pagetoken=" + page_token);
+            MainActivity.PlacesTask placesTask = new MainActivity.PlacesTask(MainActivity.this);
+            Log.v(TAG, sb.toString());
+            placesTask.execute(sb.toString());
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            Log.i(ConfigUtil.TAG, "Exception:" + e);
+        }
+    }
+
+    protected void onStart() {
+        super.onStart();
+        if (mGoogleApiClient != null) {
+            mGoogleApiClient.connect();
+        }
+    }
+
+    protected void onStop() {
+        mGoogleApiClient.disconnect();
+        super.onStop();
     }
 
     /** A method to download json data from url */
@@ -527,16 +508,19 @@ public class MainActivity extends AppCompatActivity  implements
         return data;
     }
 
-    protected void onStart() {
-        super.onStart();
-        if (mGoogleApiClient != null) {
-            mGoogleApiClient.connect();
+    private void StoreDetail(String placeid) {
+        try {
+            String unitStr = URLEncoder.encode(placeid, "utf8");  //字體要utf8編碼
+            StringBuilder sb = new StringBuilder(ConfigUtil.GOOGLE_DETAIL_API);
+            sb.append("?placeid=" + placeid);
+            sb.append("&key=" + ConfigUtil.API_KEY_GOOGLE_MAP);  //server key
+            MainActivity.DetailsTask placesTask = new MainActivity.DetailsTask(MainActivity.this);
+            Log.v(TAG, sb.toString());
+            placesTask.execute(sb.toString());
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            Log.i(ConfigUtil.TAG, "Exception:" + e);
         }
-    }
-
-    protected void onStop() {
-        mGoogleApiClient.disconnect();
-        super.onStop();
     }
 
 
