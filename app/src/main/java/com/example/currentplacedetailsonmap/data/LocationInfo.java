@@ -4,7 +4,7 @@ package com.example.currentplacedetailsonmap.data;
 import java.io.Serializable;
 
 public class LocationInfo implements Serializable {
-
+	private String placeid;
 	private String lat;
 	private String lng;
 	private String vicinity;  //addr
@@ -15,6 +15,7 @@ public class LocationInfo implements Serializable {
 	private int rating;
     private int score;
 	private boolean nowopen;
+    private String phone;
 
 	public String getTel() {
 		return tel;
@@ -22,9 +23,10 @@ public class LocationInfo implements Serializable {
 	public void setTel(String tel) {
 		this.tel = tel;
 	}
-	public LocationInfo(String lat, String lng, String vicinity, String tel,
-			String name, String atype, String photo_URL,int rating, int score, boolean nowopen) {
+	public LocationInfo(String placeid, String lat, String lng, String vicinity, String tel,
+			String name, String atype, String photo_URL,int rating, int score, boolean nowopen, String phone) {
 		super();
+		this.placeid = placeid;
 		this.lat = lat;
 		this.lng = lng;
 		this.vicinity = vicinity;
@@ -35,6 +37,7 @@ public class LocationInfo implements Serializable {
 		this.rating = rating;
         this.score = score;
 		this.nowopen = nowopen;
+        this.phone = phone;
 	}
 	public String getName() {
 		return name;
@@ -69,6 +72,7 @@ public class LocationInfo implements Serializable {
 	public String getPhoto() {
 		return photo_URL;
 	}
+	public String getPlaceid() {return placeid;}
 	public void setPhoto(Integer photo) {
 		this.photo_URL = photo_URL;
 	}
@@ -77,4 +81,6 @@ public class LocationInfo implements Serializable {
     public void setScore(int score) {this.score = score;}
 	public boolean getOpen() {return nowopen;}
 	public void setOpen(boolean nowopen) {this.nowopen = nowopen;}
+    public String getPhone() {return phone;}
+    public void setPhone(String phone) {this.phone = phone;}
 }
