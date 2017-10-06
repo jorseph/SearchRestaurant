@@ -20,6 +20,8 @@
     <string name="product">Product</string>
     <string name="catalog">Catalog</string>
     <string name="assembly">Location</string>
+    <string name="Nopicture">No Picture</string>
+    <string name="NoData">No Phone Number</string>
 
     <!-- AboutCatgActivity -->
     <string name="toast_download_aboutcatg_fail">載入關於資料失敗</string>

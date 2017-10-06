@@ -1,5 +1,6 @@
 package com.example.currentplacedetailsonmap.Activity;
 
+import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -73,11 +74,7 @@ public class MainActivity extends AppCompatActivity  implements
     private LocationManager mLocationManager;
     private Location mCurrentLocation;
     LocationRequest mLocationRequest;
-    //private Button btn_OK,btn_next;
     private ArrayList<LocationInfo> locationInfoList;
-    //private MyDBHelper helper;
-    private ArrayList<String> phoneList = new ArrayList<>();
-    private int i = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -156,13 +153,11 @@ public class MainActivity extends AppCompatActivity  implements
          * onRequestPermissionsResult.
          */
         mLocationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
-        if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
-                android.Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
+        if ((ContextCompat.checkSelfPermission(this.getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) && (ContextCompat.checkSelfPermission(this.getApplicationContext(), Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED)) {
             mLocationPermissionGranted = true;
         } else {
             ActivityCompat.requestPermissions(this,
-                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.CALL_PHONE},
                     PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
         }
         /*
@@ -439,11 +434,6 @@ public class MainActivity extends AppCompatActivity  implements
 
         @Override
         protected void onPostExecute(HashMap<String, String> list) {
-            //for (int i = 0; i < list.size(); i++) {
-            HashMap<String, String> hmPlace = list;
-            String phone = hmPlace.get("phone");
-            Log.v(TAG,"phone = " + phone);
-            locationInfoList.get(0).setPhone(phone);
             ShowStoreStart(locationInfoList);
         }
     }

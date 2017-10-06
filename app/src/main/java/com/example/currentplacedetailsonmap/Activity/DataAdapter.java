@@ -2,14 +2,18 @@ package com.example.currentplacedetailsonmap.Activity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.example.currentplacedetailsonmap.R;
@@ -46,9 +50,11 @@ import java.util.List;
 
 public class DataAdapter extends RecyclerView.Adapter<DataAdapter.ViewHolder> {
     private static final String TAG = DataAdapter.class.getSimpleName();
+    private final static String CALL = "android.intent.action.CALL";
+    private final static String MAP = "android.content.Intent.ACTION_VIEW";
     private ArrayList<LocationInfo> mData;
     private Context mContext;
-    private int view_position = 0;
+
     private DataAdapter.ViewHolder holder;
 
     public DataAdapter(Context context,ArrayList<LocationInfo> data){
@@ -66,8 +72,9 @@ public class DataAdapter extends RecyclerView.Adapter<DataAdapter.ViewHolder> {
     public void onBindViewHolder(DataAdapter.ViewHolder holder, int position) {
         //Picasso.with(mContext).load(mData.get(position).getPhoto()).into(holder.store_photo);
         //view_position = position;
-        StoreDetail(mData.get(view_position).getPlaceid());
-
+        //StoreDetail(mData.get(view_position).getPlaceid());
+        Log.v(TAG, "position is " + position);
+        Log.v(TAG, "phone is " + mData.get(position).getPhone());
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(mContext)
                 // You can pass your own memory cache implementation
                 .discCacheFileNameGenerator(new HashCodeFileNameGenerator())
@@ -79,153 +86,55 @@ public class DataAdapter extends RecyclerView.Adapter<DataAdapter.ViewHolder> {
                 .cacheOnDisc(true)
                 .build();
 
-        ImageLoader imageLoader = ImageLoader.getInstance();
-        imageLoader.init(config);
-        imageLoader.displayImage(mData.get(position).getPhoto(),holder.store_photo, options);
 
         final LocationInfo mlocationinfo = mData.get(position);
+        ImageLoader imageLoader = ImageLoader.getInstance();
+        imageLoader.init(config);
+        String image_URI = mData.get(position).getPhoto();
+        if(image_URI != null) {
+            imageLoader.displayImage(mData.get(position).getPhoto(), holder.store_photo, options);
+        } else {
+            holder.store_photo.setImageResource(R.drawable.no_image_avaliable);
+        }
+        holder.store_photo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String startmaps = "geo:" + mlocationinfo.getLat() + "," + mlocationinfo.getLng() + "?q=" + mlocationinfo.getName();
+                Intent intent = new Intent(MAP, Uri.parse(startmaps));
+                mContext.startActivity(intent);
+            }
+        });
+
         holder.store_name.setText(mData.get(position).getName());
         holder.store_name.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String startmaps = "geo:" + mlocationinfo.getLat() + "," + mlocationinfo.getLng() + "?q=" + mlocationinfo.getName();
-                Intent intent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse(startmaps));
+                Intent intent = new Intent(MAP, Uri.parse(startmaps));
                 mContext.startActivity(intent);
             }
         });
-        holder.store_phone.setText(mData.get(position).getPhone());
-
+        String phone_number = mData.get(position).getPhone();
+        if (phone_number.equals("-NA-")) {
+            holder.store_phone.setText(mContext.getString(R.string.NoData));
+        } else {
+            holder.store_phone.setText(mData.get(position).getPhone());
+        }
+        holder.store_phone.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent call = new Intent(CALL, Uri.parse("tel:" + "0953162179"));
+                mContext.startActivity(call);
+            }
+        });
+        //holder.store_price.setText(Integer.toString(mData.get(position).getRating()));
+        Drawable progress = holder.store_rating.getProgressDrawable();
+        DrawableCompat.setTint(progress, Color.RED);
+        holder.store_rating.setRating(mData.get(position).getRating()/10);
         //StoreDetail(mData.get(position).getPlaceid());
         //holder.store_phone.setText()
         //holder.store_phone.setText(phoneList.get(position));
 
-    }
-
-    /**
-     * A class, to download Google Places
-     */
-    private class DetailsTask extends AsyncTask<String, Integer, String> {
-
-        private DataAdapter context = null;
-        String data = null;
-
-        public DetailsTask(DataAdapter context) {
-            this.context = context;
-        }
-
-
-
-        @Override
-        protected String doInBackground(String... url) {
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                Log.d(TAG,"error = " + e.toString());
-            }
-            try {
-                data = downloadUrl(url[0]);
-            } catch (Exception e) {
-                Log.d("Background Task", e.toString());
-            }
-            return data;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            DataAdapter.ParserDetailTask parserTask = new DataAdapter.ParserDetailTask();
-            parserTask.execute(result);
-        }
-    }
-
-    /** A class to parse the Google Places in JSON format */
-    private class ParserDetailTask extends
-            AsyncTask<String, Integer, HashMap<String, String>> {
-
-        JSONObject jObject;
-
-        @Override
-        protected HashMap<String, String> doInBackground(
-                String... jsonData) {
-
-            HashMap<String, String> details = null;
-            DetailJSONParser detailJsonParser = new DetailJSONParser();
-
-            try {
-                jObject = new JSONObject(jsonData[0]);
-                Log.v(TAG,jObject.toString());
-                details = detailJsonParser.parse(jObject);
-                //page_token = placeJsonParser.getPageToken(jObject);
-
-            } catch (Exception e) {
-                Log.d("Exception", e.toString());
-            }
-            return details;
-        }
-
-        @Override
-        protected void onPostExecute(HashMap<String, String> list) {
-            //for (int i = 0; i < list.size(); i++) {
-            HashMap<String, String> hmPlace = list;
-            String phone = hmPlace.get("phone");
-            Log.v(TAG,"phone = " + phone);
-            if(view_position < (mData.size()-1)) {
-                mData.get(view_position).setPhone(phone);
-                view_position++;
-                StoreDetail(mData.get(view_position).getPlaceid());
-            } else {
-                for(int i = 0; i < mData.size(); i++) {
-
-                }
-            }
-        }
-    }
-
-    /** A method to download json data from url */
-    private String downloadUrl(String strUrl) throws IOException {
-        String data = "";
-        InputStream iStream = null;
-        HttpURLConnection urlConnection = null;
-        try {
-            URL url = new URL(strUrl);
-            urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.connect();
-            iStream = urlConnection.getInputStream();
-            BufferedReader br = new BufferedReader(new InputStreamReader(
-                    iStream));
-            StringBuffer sb = new StringBuffer();
-            String line = "";
-            while ((line = br.readLine()) != null) {
-                sb.append(line);
-            }
-            data = sb.toString();
-            br.close();
-        } catch (Exception e) {
-            Log.d(TAG, e.toString());
-        } finally {
-            iStream.close();
-            urlConnection.disconnect();
-        }
-        return data;
-    }
-
-    private void StoreDetail(String placeid) {
-        try {
-            String unitStr = URLEncoder.encode(placeid, "utf8");  //字體要utf8編碼
-            StringBuilder sb = new StringBuilder(ConfigUtil.GOOGLE_DETAIL_API);
-            sb.append("?placeid=" + placeid);
-            sb.append("&key=" + ConfigUtil.API_KEY_GOOGLE_MAP);  //server key
-            DataAdapter.DetailsTask placesTask = new DataAdapter.DetailsTask(DataAdapter.this);
-            Log.v(TAG, sb.toString());
-            placesTask.execute(sb.toString());
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            Log.i(ConfigUtil.TAG, "Exception:" + e);
-        }
     }
 
     @Override
@@ -239,6 +148,7 @@ public class DataAdapter extends RecyclerView.Adapter<DataAdapter.ViewHolder> {
         public TextView store_name;
         public TextView store_price;
         public TextView store_phone;
+        public RatingBar store_rating;
 
         public ViewHolder(View view) {
             super(view);
@@ -246,6 +156,7 @@ public class DataAdapter extends RecyclerView.Adapter<DataAdapter.ViewHolder> {
             store_name = (TextView) view.findViewById(R.id.info_text);
             store_price = (TextView) view.findViewById(R.id.price_text);
             store_phone = (TextView) view.findViewById(R.id.phone_text);
+            store_rating = (RatingBar) view.findViewById(R.id.ratingBar);
         }
     }
 }
