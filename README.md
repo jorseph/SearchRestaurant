@@ -1,7 +1,7 @@
 #  ![png](https://github.com/jorseph/SearchRestaurant/blob/master/images/ic_launcher.png) SearchRestaurant App
 =====================================================
 
-![png](https://github.com/jorseph/SearchRestaurant/blob/master/images/show_list.jpg)
+![png](https://github.com/jorseph/SearchRestaurant/blob/master/images/show_list.jpg =200x200)
 
 Overview
 --------------
