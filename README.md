@@ -1,5 +1,13 @@
-Google Maps Android API Sample: Current Place Details
+#  ![png](https://github.com/jorseph/SearchRestaurant/images/ic_launcher.png) SearchRestaurant App
 =====================================================
+
+![png](https://github.com/jorseph/SearchRestaurant/images/show_list.png)
+
+Overview
+--------------
+
+- This app is simple to search the nearby and opened restaurant.
+- The show order of restaurants is by rating and the restaurant is within 500m of the user.
 
 Prerequisites
 --------------
@@ -11,33 +19,18 @@ Prerequisites
 Getting started
 ---------------
 
-This sample uses the Gradle build system.
+This app uses the Gradle build system.
 
-1. Download the samples by cloning this repository or downloading an archived
-  snapshot. (See the options at the top of the page.)
-1. In Android Studio, create a new project and choose the "Import non-Android Studio project" or
-  "Import Project" option.
-1. Select the `CurrentPlaceDetailsOnMap` directory that you downloaded with this repository.
+1. Download the samples by cloning this repository.
+1. In Android Studio, create a new project and choose the "Import Project" option.
+1. Select the `SearchRestaurant` directory that you downloaded with this repository.
 1. If prompted for a gradle configuration, accept the default settings.
   Alternatively use the "gradlew build" command to build the project directly.
 1. Add your API key to your app's `gradle.properties` file.
   (For information on getting an API key, see the
   [documentation](https://developers.google.com/maps/documentation/android-api/signup).)
 
-Support
--------
-
-- Stack Overflow: https://stackoverflow.com/questions/tagged/android+google-maps
-
-If you have discovered an issue with the Google Maps Android API v2, please see
-the resources here: https://developers.google.com/maps/documentation/android-api/support
-
-If you've found an error in these samples, please file an issue:
-https://github.com/googlemaps/android-samples/issues
-
-![Analytics](https://ga-beacon.appspot.com/UA-12846745-20/android-samples-apidemos/readme?pixel)
-
 License
 -------
 
-Please refer to the [LICENSE](https://github.com/googlemaps/android-samples/blob/master/LICENSE) at the root of this repo.
+Please refer to the [LICENSE](https://github.com/jorseph/SearchRestaurant) at the root of this repo.
