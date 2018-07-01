@@ -186,7 +186,7 @@ public class ShowStoreActivity extends AppCompatActivity {
             sb.append("?placeid=" + placeid);
             sb.append("&key=" + ConfigUtil.API_KEY_GOOGLE_MAP);  //server key
             ShowStoreActivity.DetailsTask placesTask = new ShowStoreActivity.DetailsTask(ShowStoreActivity.this);
-            Log.v(TAG, sb.toString());
+            Log.v(TAG, "StoreDetail api request is " + sb.toString());
             placesTask.execute(sb.toString());
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();

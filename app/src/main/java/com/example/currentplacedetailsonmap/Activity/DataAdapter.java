@@ -50,8 +50,6 @@ import java.util.List;
 
 public class DataAdapter extends RecyclerView.Adapter<DataAdapter.ViewHolder> {
     private static final String TAG = DataAdapter.class.getSimpleName();
-    private final static String CALL = "android.intent.action.CALL";
-    private final static String MAP = "android.content.Intent.ACTION_VIEW";
     private ArrayList<LocationInfo> mData;
     private Context mContext;
 
@@ -69,7 +67,7 @@ public class DataAdapter extends RecyclerView.Adapter<DataAdapter.ViewHolder> {
     }
 
     @Override
-    public void onBindViewHolder(DataAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(final DataAdapter.ViewHolder holder, int position) {
         //Picasso.with(mContext).load(mData.get(position).getPhoto()).into(holder.store_photo);
         //view_position = position;
         //StoreDetail(mData.get(view_position).getPlaceid());
@@ -100,7 +98,8 @@ public class DataAdapter extends RecyclerView.Adapter<DataAdapter.ViewHolder> {
             @Override
             public void onClick(View v) {
                 String startmaps = "geo:" + mlocationinfo.getLat() + "," + mlocationinfo.getLng() + "?q=" + mlocationinfo.getName();
-                Intent intent = new Intent(MAP, Uri.parse(startmaps));
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(startmaps));
+                intent.setPackage("com.google.android.apps.maps");
                 mContext.startActivity(intent);
             }
         });
@@ -110,11 +109,12 @@ public class DataAdapter extends RecyclerView.Adapter<DataAdapter.ViewHolder> {
             @Override
             public void onClick(View v) {
                 String startmaps = "geo:" + mlocationinfo.getLat() + "," + mlocationinfo.getLng() + "?q=" + mlocationinfo.getName();
-                Intent intent = new Intent(MAP, Uri.parse(startmaps));
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(startmaps));
+                intent.setPackage("com.google.android.apps.maps");
                 mContext.startActivity(intent);
             }
         });
-        String phone_number = mData.get(position).getPhone();
+        final String phone_number = mData.get(position).getPhone();
         if (phone_number.equals("-NA-")) {
             holder.store_phone.setText(mContext.getString(R.string.NoData));
         } else {
@@ -123,7 +123,7 @@ public class DataAdapter extends RecyclerView.Adapter<DataAdapter.ViewHolder> {
         holder.store_phone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent call = new Intent(CALL, Uri.parse("tel:" + "0953162179"));
+                Intent call = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + phone_number));
                 mContext.startActivity(call);
             }
         });
