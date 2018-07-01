@@ -1,5 +1,7 @@
 package com.example.currentplacedetailsonmap.Activity;
 
+import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -17,6 +19,7 @@ import android.util.Log;
 import com.example.currentplacedetailsonmap.R;
 import com.example.currentplacedetailsonmap.data.LocationInfo;
 import com.example.currentplacedetailsonmap.util.ConfigUtil;
+import com.example.currentplacedetailsonmap.util.DetailJSONParser;
 import com.example.currentplacedetailsonmap.util.PlaceJSONParser;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -71,9 +74,7 @@ public class MainActivity extends AppCompatActivity  implements
     private LocationManager mLocationManager;
     private Location mCurrentLocation;
     LocationRequest mLocationRequest;
-    //private Button btn_OK,btn_next;
     private ArrayList<LocationInfo> locationInfoList;
-    //private MyDBHelper helper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -152,13 +153,11 @@ public class MainActivity extends AppCompatActivity  implements
          * onRequestPermissionsResult.
          */
         mLocationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
-        if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
-                android.Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
+        if ((ContextCompat.checkSelfPermission(this.getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) && (ContextCompat.checkSelfPermission(this.getApplicationContext(), Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED)) {
             mLocationPermissionGranted = true;
         } else {
             ActivityCompat.requestPermissions(this,
-                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.CALL_PHONE},
                     PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
         }
         /*
@@ -302,22 +301,32 @@ public class MainActivity extends AppCompatActivity  implements
         protected void onPostExecute(List<HashMap<String, String>> list) {
             for (int i = 0; i < list.size(); i++) {
                 HashMap<String, String> hmPlace = list.get(i);
+
                 double lat = Double.parseDouble(hmPlace.get("lat"));
                 double lng = Double.parseDouble(hmPlace.get("lng"));
                 String name = hmPlace.get("place_name");
+                String placeid = hmPlace.get("place_id");
                 String vicinity = hmPlace.get("vicinity");
                 int rating = (int)(Float.valueOf(hmPlace.get("rating"))*10);
                 String photo = hmPlace.get("photo");
                 boolean nowopen = Boolean.parseBoolean(hmPlace.get("nowopen"));
-                locationInfoList.add(new LocationInfo(String.valueOf(lat),String.valueOf(lng),vicinity,"",name,"restaurant",photo,rating,100,nowopen));
+                locationInfoList.add(new LocationInfo(placeid, String.valueOf(lat),String.valueOf(lng),vicinity,"",name,"restaurant",photo,rating,100,nowopen,""));
                 Log.v(TAG,"rating = " + rating);
             }
 
             if(page_token != null) {
                 searchKeywordNextPage("restaurant");
             } else {
+                //for(int i = 0; i < locationInfoList.size(); i++) {
+
+                //ShowStoreStart(locationInfoList.get(i).getPlaceid());
+                //}
+
+                //for(int i = 0; i < phoneList.size(); i++) {
+
+                //}
                 Collections.sort(locationInfoList, new Comparator<LocationInfo>() {
-                    @Override
+                     @Override
                     public int compare(LocationInfo o1, LocationInfo o2) {
                         return o2.getRating()-o1.getRating();
                     }
@@ -326,7 +335,7 @@ public class MainActivity extends AppCompatActivity  implements
                     Log.v(TAG, "locationInfoList = " + locationInfoList.get(i).getName().toString());
                     Log.v(TAG, "locationInfoList = " + locationInfoList.get(i).getRating());
                 }*/
-                ShowStoreStart(locationInfoList);
+                StoreDetail(locationInfoList.get(0).getPlaceid());
             }
         }
     }
@@ -357,6 +366,78 @@ public class MainActivity extends AppCompatActivity  implements
         }
     }
 
+    /**
+     * A class, to download Google Places
+     */
+    private class DetailsTask extends AsyncTask<String, Integer, String> {
+
+        private MainActivity context = null;
+        String data = null;
+
+        public DetailsTask(MainActivity context) {
+            this.context = context;
+        }
+
+
+
+        @Override
+        protected String doInBackground(String... url) {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                Log.d(TAG,"error = " + e.toString());
+            }
+            try {
+                data = downloadUrl(url[0]);
+            } catch (Exception e) {
+                Log.d("Background Task", e.toString());
+            }
+            return data;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            MainActivity.ParserDetailTask parserTask = new MainActivity.ParserDetailTask();
+            parserTask.execute(result);
+        }
+    }
+
+    /** A class to parse the Google Places in JSON format */
+    private class ParserDetailTask extends
+            AsyncTask<String, Integer, HashMap<String, String>> {
+
+        JSONObject jObject;
+
+        @Override
+        protected HashMap<String, String> doInBackground(
+                String... jsonData) {
+
+            HashMap<String, String> details = null;
+            DetailJSONParser detailJsonParser = new DetailJSONParser();
+
+            try {
+                jObject = new JSONObject(jsonData[0]);
+                Log.v(TAG,jObject.toString());
+                details = detailJsonParser.parse(jObject);
+                //page_token = placeJsonParser.getPageToken(jObject);
+
+            } catch (Exception e) {
+                Log.d("Exception", e.toString());
+            }
+            return details;
+        }
+
+        @Override
+        protected void onPostExecute(HashMap<String, String> list) {
+            ShowStoreStart(locationInfoList);
+        }
+    }
+
     private void searchKeywordNextPage(String keyword) {
         try {
             String unitStr = URLEncoder.encode(keyword, "utf8");  //字體要utf8編碼
@@ -375,6 +456,18 @@ public class MainActivity extends AppCompatActivity  implements
             e.printStackTrace();
             Log.i(ConfigUtil.TAG, "Exception:" + e);
         }
+    }
+
+    protected void onStart() {
+        super.onStart();
+        if (mGoogleApiClient != null) {
+            mGoogleApiClient.connect();
+        }
+    }
+
+    protected void onStop() {
+        mGoogleApiClient.disconnect();
+        super.onStop();
     }
 
     /** A method to download json data from url */
@@ -405,16 +498,19 @@ public class MainActivity extends AppCompatActivity  implements
         return data;
     }
 
-    protected void onStart() {
-        super.onStart();
-        if (mGoogleApiClient != null) {
-            mGoogleApiClient.connect();
+    private void StoreDetail(String placeid) {
+        try {
+            String unitStr = URLEncoder.encode(placeid, "utf8");  //字體要utf8編碼
+            StringBuilder sb = new StringBuilder(ConfigUtil.GOOGLE_DETAIL_API);
+            sb.append("?placeid=" + placeid);
+            sb.append("&key=" + ConfigUtil.API_KEY_GOOGLE_MAP);  //server key
+            MainActivity.DetailsTask placesTask = new MainActivity.DetailsTask(MainActivity.this);
+            Log.v(TAG, sb.toString());
+            placesTask.execute(sb.toString());
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            Log.i(ConfigUtil.TAG, "Exception:" + e);
         }
-    }
-
-    protected void onStop() {
-        mGoogleApiClient.disconnect();
-        super.onStop();
     }
 
 

@@ -67,6 +67,7 @@ public class PlaceJSONParser {
 	private HashMap<String, String> getPlace(JSONObject jPlace){
 
 		HashMap<String, String> place = new HashMap<String, String>();
+		String placeid = "-NA-";
 		String placeName = "-NA-";
 		String vicinity="-NA-";
 		String latitude="";
@@ -80,6 +81,11 @@ public class PlaceJSONParser {
 			// Extracting Place name, if available
 			if(!jPlace.isNull("name")){
 				placeName = jPlace.getString("name");
+			}
+
+			// Extracting Place id, if available
+			if(!jPlace.isNull("place_id")){
+				placeid = jPlace.getString("place_id");
 			}
 			
 			// Extracting Place Vicinity, if available
@@ -113,6 +119,7 @@ public class PlaceJSONParser {
 			}
 			
 			place.put("place_name", placeName);
+			place.put("place_id",placeid);
 			place.put("vicinity", vicinity);
 			place.put("lat", latitude);
 			place.put("lng", longitude);
